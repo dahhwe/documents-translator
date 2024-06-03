@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Translator</title>
+</head>
+<body>
+
+<h2>Upload File</h2>
+
+<form id="upload-form" enctype="multipart/form-data">
+    Select file to upload:
+    <input type="file" name="file">
+    <input type="submit" value="Upload File">
+</form>
+
+<h2>Download File</h2>
+
+<form id="download-form" method="get">
+    <button type="submit" disabled>Download Translated File</button>
+</form>
+
+<script>
+    document.getElementById('upload-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const fileInput = document.querySelector('input[type="file"]');
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        try {
+            const response = await fetch('/upload/', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert(data.message);
+
+                if (data.filename) {
+                    const filename = data.filename;
+                    const downloadForm = document.getElementById('download-form');
+                    downloadForm.action = `/download/${filename}`;
+                    downloadForm.querySelector('button').disabled = false;
+                } else {
+                    alert('Filename could not be determined');
+                }
+            } else {
+                alert('File upload failed');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred during the file upload.');
+        }
+    });
+</script>
+
+</body>
+</html>
