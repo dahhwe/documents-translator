@@ -5,11 +5,13 @@ from ezodf import opendoc
 from fastapi import FastAPI, UploadFile, HTTPException, File, Request
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from translation import translate_node, translate_docx_file
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/", response_class=HTMLResponse)
