@@ -2,25 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RU-TR File translator</title>
+    <title>RU-TR Document Translator</title>
     <link rel="stylesheet" href="static/css/styles.css">
 </head>
 <body>
 
-<h2>Upload file</h2>
+<h2>Upload Document</h2>
 
 <form id="upload-form" enctype="multipart/form-data">
-    Choose a file for upload:
-    <input type="file" name="file" placeholder="Выберите файл">
-    <input type="submit" value="Translate the file" disabled>
+    Select a document for translation:
+    <input type="file" name="file" placeholder="Select a document">
+    <br>
+    Enter a custom prompt for translation (optional):
+    <label>
+        <input type="text" name="custom_prompt" placeholder="Enter custom prompt">
+    </label>
+    <br>
+    <input type="submit" value="Translate Document" disabled>
 </form>
 
 <progress id="progress-bar" value="0" max="100"></progress>
 
-<h2>Download file</h2>
+<h2>Download Translated Document</h2>
 
 <form id="download-form" method="get">
-    <button type="submit" disabled>Download</button>
+    <button type="submit" disabled>Download Translated Document</button>
 </form>
 
 <script src="static/js/script.js"></script>

@@ -2,10 +2,10 @@ import os
 
 import uvicorn
 from ezodf import opendoc
-from fastapi import FastAPI, UploadFile, HTTPException, File, Request
+from fastapi import FastAPI, UploadFile, HTTPException, File, Request, Form
 from fastapi.responses import FileResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from translation import translate_node, translate_docx_file
 
@@ -20,20 +20,19 @@ async def read_form(request: Request):
 
 
 @app.post("/upload/")
-async def upload(file: UploadFile = File(...)):
+async def upload(file: UploadFile = File(...), custom_prompt: str = Form(None)):
+    temp_filename = f"temp_{file.filename}"
     try:
         contents = await file.read()
 
-        temp_filename = f"temp_{file.filename}"
         with open(temp_filename, 'wb') as f:
             f.write(contents)
-
         if file.filename.endswith('.docx'):
-            translate_docx_file(temp_filename)
+            translate_docx_file(temp_filename, custom_prompt)
         elif file.filename.endswith('.odt'):
             doc = opendoc(temp_filename)
             for element in doc.body:
-                translate_node(element)
+                translate_node(element, custom_prompt)
 
             doc.save()
 
@@ -48,6 +47,9 @@ async def upload(file: UploadFile = File(...)):
     except Exception as e:
         print(f"Exception: {e}")
         raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        if os.path.exists(temp_filename):
+            os.remove(temp_filename)
 
 
 @app.get("/download/{filename}")

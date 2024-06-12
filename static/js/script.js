@@ -17,6 +17,9 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
 
     const formData = new FormData();
     formData.append('file', fileInput.files[0]);
+    formData.append('custom_prompt', document.querySelector('input[name="custom_prompt"]').value);
+
+    console.log('Form data:', [...formData.entries()]);
 
     fileInput.disabled = true;
     uploadButton.disabled = true;
