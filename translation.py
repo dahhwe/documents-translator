@@ -18,7 +18,7 @@ def clear_node_content(node):
 
 
 def translate_text(text, prompt):
-    if text in string.punctuation:
+    if not text.strip() or text in string.punctuation:
         return text
 
     openai.api_key = "API_KEY"
@@ -49,14 +49,10 @@ def translate_node(node, prompt):
             clear_node_content(node)
             node.text = translated_text
     elif isinstance(node, ezodf.table.Table):
-        for row in node.rows():
-            if isinstance(row, list):
-                cells = row
-            else:
-                cells = row.cells()
-            for cell in cells:
-                if isinstance(cell, ezodf.text.Paragraph) or isinstance(cell, ezodf.text.Heading):
-                    translate_node(cell, prompt)
+        for row in node:
+            for cell in row:
+                for element in cell:
+                    translate_node(element, prompt)
 
 
 def translate_run(run, prompt):
