@@ -38,7 +38,8 @@ def translate_text(text, prompt):
 
 
 def translate_node(node, prompt):
-    if isinstance(node, ezodf.text.Paragraph) or isinstance(node, ezodf.text.Heading):
+    if (isinstance(node, ezodf.text.Paragraph) or
+            isinstance(node, ezodf.text.Heading)):
         inner_text = node.plaintext()
         if inner_text:
             print(BLUE_TEXT.format(f'\n***\nNode: {node}'))

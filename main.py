@@ -14,13 +14,23 @@ templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
+def remove_temp_files():
+    for filename in os.listdir('.'):
+        if filename.startswith('temp_'):
+            try:
+                os.remove(filename)
+            except OSError as e:
+                print(f"Error: {e.strerror}")
+
+
 def get_unique_filename(filename):
     counter = 1
-    new_filename = filename
     name, extension = os.path.splitext(filename)
+    new_filename = os.path.join('translated_files', f"{name}{extension}")
 
     while os.path.exists(new_filename):
-        new_filename = f"{name}({counter}){extension}"
+        new_filename = os.path.join('translated_files', f"{name}({counter})"
+                                                        f"{extension}")
         counter += 1
 
     return new_filename
@@ -35,9 +45,10 @@ async def read_form(request: Request):
 async def upload(file: UploadFile = File(...), prompt: str = Form(...)):
     filename, file_extension = os.path.splitext(file.filename)
     file_extension = file_extension[1:].lower()
-    if file_extension not in ['docx', 'odt', 'doc']:
-        raise HTTPException(status_code=400, detail="Некорректное расширение документа."
-                                                    "Только .docx, .odt, and .doc разрешены.")
+    if file_extension not in ['docx', 'odt']:
+        raise HTTPException(status_code=400,
+                            detail="Некорректное расширение документа"
+                                   "Только .docx и .odt разрешены.")
 
     temp_filename = f"temp_{file.filename}"
     try:
@@ -45,7 +56,7 @@ async def upload(file: UploadFile = File(...), prompt: str = Form(...)):
         with open(temp_filename, 'wb') as f:
             f.write(contents)
 
-        if file_extension == 'docx' or file_extension == 'doc':
+        if file_extension == 'docx':
             translate_docx_file(temp_filename, prompt)
         elif file_extension == 'odt':
             doc = opendoc(temp_filename)
@@ -57,9 +68,10 @@ async def upload(file: UploadFile = File(...), prompt: str = Form(...)):
         if not os.path.exists(translated_dir):
             os.makedirs(translated_dir)
 
-        new_filename = os.path.join(translated_dir, get_unique_filename(f"translated_{file.filename}"))
+        new_filename = get_unique_filename(f"translated_{file.filename}")
         os.rename(temp_filename, new_filename)
-        return {"message": "Документ успешно переведен", "filename": os.path.basename(new_filename)}
+        return {"message": "Документ успешно переведен",
+                "filename": os.path.basename(new_filename)}
 
     except Exception as e:
         print(f"Ошибка: {e}")
@@ -72,7 +84,7 @@ async def upload(file: UploadFile = File(...), prompt: str = Form(...)):
 
 @app.get("/download/{filename}")
 async def download(filename: str):
-    file_path = os.path.join('translated_files', get_unique_filename(filename))
+    file_path = os.path.join('translated_files', filename)
     if os.path.exists(file_path):
         return FileResponse(file_path, filename=filename)
     else:
@@ -80,4 +92,5 @@ async def download(filename: str):
 
 
 if __name__ == "__main__":
+    remove_temp_files()
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

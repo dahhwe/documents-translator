@@ -13,11 +13,11 @@ downloadButton.disabled = true;
 fileInput.addEventListener('change', () => {
     const file = fileInput.files[0];
     const fileExtension = file.name.split('.').pop().toLowerCase();
-    if (['docx', 'odt', 'doc'].includes(fileExtension)) {
+    if (['docx', 'odt'].includes(fileExtension)) {
         uploadButton.disabled = false;
     } else {
         uploadButton.disabled = true;
-        alert('Invalid file type. Only .docx, .odt, and .doc files are allowed.');
+        alert('Некорректное расширение документа. Только .docx и .odt разрешены.');
     }
     downloadButton.disabled = true;
     progressBar.value = 0;
@@ -61,13 +61,14 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
                 downloadForm.action = `/download/${filename}`;
                 downloadButton.disabled = false;
             } else {
-                alert('Filename could not be determined');
+                alert('Не удалось определить имя файла');
             }
         } else {
-            alert('File upload failed');
+            alert('Не удалось определить имя файла');
         }
     } catch (error) {
-        alert('An error occurred during the file upload.');
+        console.error(error);
+        alert('Во время загрузки файла произошла ошибка: ' + error.message);
     } finally {
         fileInput.disabled = false;
         uploadButton.disabled = false;
