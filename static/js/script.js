@@ -2,12 +2,23 @@ const fileInput = document.querySelector('input[type="file"]');
 const uploadButton = document.querySelector('input[type="submit"]');
 const downloadButton = document.querySelector('#download-form button');
 const progressBar = document.getElementById('progress-bar');
+const defaultPrompt = 'You are a highly skilled translator specializing in IT literature. Your task is to translate the following text to Turkish, maintaining its professional tone and keeping all technical terms and object names intact. Your response should only contain the translated text without any extra information such as specifying the language of the document and so on. If you are unable to provide the translation or text contains some kind of not alphabetic symbols or text seems to be a code fragment keep text as it is.';
+const promptTextArea = document.querySelector('textarea[name="prompt"]');
+
+promptTextArea.value = defaultPrompt;
 
 uploadButton.disabled = true;
 downloadButton.disabled = true;
 
 fileInput.addEventListener('change', () => {
-    uploadButton.disabled = !fileInput.files.length;
+    const file = fileInput.files[0];
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    if (['docx', 'odt', 'doc'].includes(fileExtension)) {
+        uploadButton.disabled = false;
+    } else {
+        uploadButton.disabled = true;
+        alert('Invalid file type. Only .docx, .odt, and .doc files are allowed.');
+    }
     downloadButton.disabled = true;
     progressBar.value = 0;
 });
@@ -17,7 +28,7 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
 
     const formData = new FormData();
     formData.append('file', fileInput.files[0]);
-    formData.append('custom_prompt', document.querySelector('input[name="custom_prompt"]').value);
+    formData.append('prompt', document.querySelector('textarea[name="prompt"]').value);
 
     console.log('Form data:', [...formData.entries()]);
 

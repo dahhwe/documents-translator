@@ -1,32 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>RU-TR Document Translator</title>
+    <title>Переводчик документов RU-TR</title>
     <link rel="stylesheet" href="static/css/styles.css">
 </head>
 <body>
 
-<h2>Upload Document</h2>
+<h2>Загрузить документ</h2>
 
 <form id="upload-form" enctype="multipart/form-data">
-    Select a document for translation:
-    <input type="file" name="file" placeholder="Select a document">
+    Выберите документ для перевода:
+    <input type="file" name="file" placeholder="Выберите документ">
     <br>
-    Enter a custom prompt for translation (optional):
+    Prompt для перевода:
     <label>
-        <input type="text" name="custom_prompt" placeholder="Enter custom prompt">
+    <textarea name="prompt" rows="10" cols="100">You are a highly skilled translator specializing in IT literature. Your task is to translate the following text to Turkish, maintaining its professional tone and keeping all technical terms and object names intact. Your response should only contain the translated text without any extra information such as specifying the language of the document and so on. If you are unable to provide the translation or text contains some kind of not alphabetic symbols or text seems to be a code fragment keep text as it is.
+    </textarea>
     </label>
     <br>
-    <input type="submit" value="Translate Document" disabled>
+    <input type="submit" value="Перевести документ" disabled>
 </form>
 
 <progress id="progress-bar" value="0" max="100"></progress>
 
-<h2>Download Translated Document</h2>
+<h2>Скачать переведенный документ</h2>
 
 <form id="download-form" method="get">
-    <button type="submit" disabled>Download Translated Document</button>
+    <button type="submit" disabled>Скачать переведенный документ</button>
 </form>
 
 <script src="static/js/script.js"></script>

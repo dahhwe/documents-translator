@@ -50,3 +50,7 @@ progress {
     margin-top: 10px;
     width: 80%;
 }
+
+textarea[name="prompt"] {
+    text-align: justify;
+}
