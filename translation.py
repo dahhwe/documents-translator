@@ -51,6 +51,26 @@ def translate_chunk(text_chunk, prompt):
     return response.choices[0].message.content
 
 
+def translate_node(node, prompt):
+    if (isinstance(node, ezodf.text.Paragraph) or
+            isinstance(node, ezodf.text.Heading) or
+            isinstance(node, ezodf.text.List)):
+        inner_text = node.plaintext()
+        if inner_text:
+            print(BLUE_TEXT.format(f'\n***\nNode: {node}'))
+            print(GREEN_TEXT.format('SOURCE_TEXT:'), inner_text)
+
+            translated_text = translate_text(inner_text, prompt)
+            print(GREEN_TEXT.format('TRANSLATED_TEXT: '), translated_text)
+            clear_node_content(node)
+            node.text = translated_text
+    elif isinstance(node, ezodf.table.Table):
+        for row in node:
+            for cell in row:
+                for element in cell:
+                    translate_node(element, prompt)
+
+
 def translate_text(text, prompt):
     if not text.strip() or text in string.punctuation:
         return text
@@ -75,32 +95,20 @@ def translate_text(text, prompt):
     return translated_text
 
 
-def translate_node(node, prompt):
-    if (isinstance(node, ezodf.text.Paragraph) or
-            isinstance(node, ezodf.text.Heading)):
-        inner_text = node.plaintext()
-        if inner_text:
-            print(BLUE_TEXT.format(f'\n***\nNode: {node}'))
-            print(GREEN_TEXT.format('SOURCE_TEXT:'), inner_text)
-
-            translated_text = translate_text(inner_text, prompt)
-            print(GREEN_TEXT.format('TRANSLATED_TEXT: '), translated_text)
-            clear_node_content(node)
-            node.text = translated_text
-    elif isinstance(node, ezodf.table.Table):
-        for row in node:
-            for cell in row:
-                for element in cell:
-                    translate_node(element, prompt)
-
-
 def translate_paragraph(paragraph, prompt):
     text = ''.join(run.text for run in paragraph.runs)
     if text.strip():
         print(BLUE_TEXT.format(f'\n***\nParagraph: {paragraph}'))
         print(GREEN_TEXT.format('SOURCE_TEXT:'), text)
 
-        translated_text = translate_text(text, prompt)
+        if paragraph.style.name.startswith('List'):
+            list_items = text.split('\n')
+            translated_text = ""
+            for item in list_items:
+                translated_text += translate_text(item, prompt) + "\n"
+        else:
+            translated_text = translate_text(text, prompt)
+
         print(GREEN_TEXT.format('TRANSLATED_TEXT: '), translated_text)
         for run in paragraph.runs:
             run.text = ''
